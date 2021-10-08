@@ -26,7 +26,7 @@ class Pessoa{
     
     return "";
   }
-  void _calcular(){
+  /*void _calcular(){
     setState(() {
       peso=double.parse(peso.text);
       altura=(double.parse(altura.text))/100;
@@ -45,7 +45,7 @@ class Pessoa{
       else
         _mensagem += "Obesidade Grau IIII";
     });
-  }
+  }*/
 }
 
 class _HomeState extends State<Home> {
@@ -53,7 +53,10 @@ class _HomeState extends State<Home> {
   TextEditingController pesoController = TextEditingController();
   TextEditingController alturaController = TextEditingController();
   String _mensagem= "Por favor informe seus dados";
-
+  double imc = 0.0;
+  final double peso = 0.0;
+  final double altura = 0.0;
+  final String genero = "";
 
   void _reset(){
     pesoController.text="";
@@ -79,7 +82,7 @@ class _HomeState extends State<Home> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Form(
-            key: _formKey,/// fazer
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
@@ -113,14 +116,29 @@ class _HomeState extends State<Home> {
                     }
                 ),
                 Padding(
+                  child:
+                    ListTile(
+                      title: const Text('Thomas Jefferson'),
+                      leading: 
+                        Radio<SingingCharacter>(
+                        value: SingingCharacter.jefferson,
+                        groupValue: _character,
+                        onChanged: (SingingCharacter? value) {
+                          setState(() {
+                            _character = value;
+                          });
+                        },
+                      ),
+                    ),
+                ),
+                Padding(
                   padding: EdgeInsets.all(8),
                   child: Container(
                     height: 40,
                     child: RaisedButton(
                       onPressed: (){
-                        if(_formKey.currentState!.validate()){
-                          ///executa algo
-                          _calcular();
+                        if(_formKey.currentState!.validate()){                          
+                          //_calcular();
                         }
                       },
                       child: Text("Calcular"),
@@ -137,5 +155,5 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  
+
 }
