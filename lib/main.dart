@@ -17,53 +17,81 @@ class Home extends StatefulWidget {
 }
 
 class Pessoa{
-  final double peso = 0.0;
-  final double altura = 0.0;
-  final String genero = "";
-  final double imc = 0.0;
+  TextEditingController pesoController = TextEditingController();
+  TextEditingController alturaController = TextEditingController();
+  int? _genero = 0;
+  double peso = 0.0;
+  double altura = 0.0;
+  int genero = 0;
+  double imc = 0.0;
 
-  String calculoFeminino(){
-    
-    return "";
+  String _calculoFeminino(String mensagem){
+    if (imc < 19.1)
+      mensagem += "Abaixo do peso";
+    else if (imc < 25.8)
+      mensagem += "Peso ideal";
+    else if (imc < 27.3)
+      mensagem += "Levemente acima do peso";
+    else if (imc < 35.0)
+      mensagem += "Obesidade Grau I";
+    else if (imc < 40.0)
+      mensagem += "Obesidade Grau II";
+    else
+      mensagem += "Obesidade Grau IIII";
+
+    return mensagem;
   }
-  /*void _calcular(){
-    setState(() {
-      peso=double.parse(peso.text);
-      altura=(double.parse(altura.text))/100;
-      imc= peso/(altura*altura);
-      _mensagem = "IMC ${imc.toStringAsPrecision(2)}\n";
-      if (imc < 18.6)
-        _mensagem += "Abaixo do peso";
-      else if (imc < 25.0)
-        _mensagem += "Peso ideal";
-      else if (imc < 30.0)
-        _mensagem += "Levemente acima do peso";
-      else if (imc < 35.0)
-        _mensagem += "Obesidade Grau I";
-      else if (imc < 40.0)
-        _mensagem += "Obesidade Grau II";
-      else
-        _mensagem += "Obesidade Grau IIII";
-    });
-  }*/
+  String _calculoMasculino(String mensagem){
+    if (imc < 18.6)
+      mensagem += "Abaixo do peso";
+    else if (imc < 25.0)
+      mensagem += "Peso ideal";
+    else if (imc < 30.0)
+      mensagem += "Levemente acima do peso";
+    else if (imc < 35.0)
+      mensagem += "Obesidade Grau I";
+    else if (imc < 40.0)
+      mensagem += "Obesidade Grau II";
+    else
+      mensagem += "Obesidade Grau IIII";
+
+    return mensagem;
+  }
+
+  String calcularIMC(){
+    peso = double.parse(pesoController.text);
+    altura = (double.parse(alturaController.text))/100;
+    imc = peso/(altura*altura);
+    String mensagem = "IMC ${imc.toStringAsPrecision(2)}\n";
+    if(genero == 0){
+      return _calculoMasculino(mensagem);
+    }
+    return _calculoFeminino(mensagem);
+  }    
 }
 
 class _HomeState extends State<Home> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController pesoController = TextEditingController();
-  TextEditingController alturaController = TextEditingController();
+  
   String _mensagem= "Por favor informe seus dados";
+  Pessoa pessoa = Pessoa();
   double imc = 0.0;
   final double peso = 0.0;
   final double altura = 0.0;
-  final String genero = "";
+  
 
   void _reset(){
-    pesoController.text="";
-    alturaController.text="";
+    pessoa.pesoController.text="";
+    pessoa.alturaController.text="";
     setState(() {
       _mensagem="Por favor informe seus dados";
       _formKey= GlobalKey<FormState>();
+    });
+  }
+
+  void _calcular(){
+    setState(() {
+        _mensagem = pessoa.calcularIMC();        
     });
   }
 
@@ -94,7 +122,7 @@ class _HomeState extends State<Home> {
                         labelStyle: TextStyle(color: Colors.lightBlueAccent)),
                     textAlign: TextAlign.center,
                     style: TextStyle (color: Colors.blue, fontSize: 24),
-                    controller: pesoController,
+                    controller: pessoa.pesoController,
                     validator: (value){
                       if(value!.isEmpty){
                         return "Informe o seu peso!";
@@ -108,7 +136,7 @@ class _HomeState extends State<Home> {
                         labelStyle: TextStyle(color: Colors.lightBlueAccent)),
                     textAlign: TextAlign.center,
                     style: TextStyle (color: Colors.blue, fontSize: 24),
-                    controller: alturaController,
+                    controller: pessoa.alturaController,
                     validator: (value){
                       if(value!.isEmpty){
                         return "Informe sua altura!";
@@ -116,20 +144,31 @@ class _HomeState extends State<Home> {
                     }
                 ),
                 Padding(
-                  child:
-                    ListTile(
-                      title: const Text('Thomas Jefferson'),
-                      leading: 
-                        Radio<SingingCharacter>(
-                        value: SingingCharacter.jefferson,
-                        groupValue: _character,
-                        onChanged: (SingingCharacter? value) {
+                  padding: const EdgeInsets.only(top: 1),
+                  child: Row(
+                    children:[
+                      Text('Maculino'),
+                      Radio(
+                        value: 0,
+                        groupValue: pessoa._genero,
+                        onChanged: (int ? value){
                           setState(() {
-                            _character = value;
+                            pessoa._genero = value;                            
                           });
                         },
                       ),
-                    ),
+                      Text('Feminino'),
+                      Radio(
+                        value: 1,
+                        groupValue: pessoa._genero,
+                        onChanged: (int ? value){
+                          setState(() {
+                            pessoa._genero = value;                            
+                          });
+                        },
+                      ),
+                    ]
+                  )
                 ),
                 Padding(
                   padding: EdgeInsets.all(8),
@@ -138,7 +177,7 @@ class _HomeState extends State<Home> {
                     child: RaisedButton(
                       onPressed: (){
                         if(_formKey.currentState!.validate()){                          
-                          //_calcular();
+                          _calcular();
                         }
                       },
                       child: Text("Calcular"),
